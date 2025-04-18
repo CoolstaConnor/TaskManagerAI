@@ -1,0 +1,1085 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Task Time Planner</title>
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            --background-color: #f9fafb;
+            --card-bg: #ffffff;
+            --text-color: #374151;
+            --border-color: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        h2 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #374151;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.25rem;
+        }
+
+        .section {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .time-range {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .time-input {
+            flex: 1;
+        }
+
+        .time-input label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .add-task-form {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .task-name-input {
+            flex: 2;
+            min-width: 200px;
+        }
+
+        .duration-input, .priority-input {
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .timeline-container {
+            margin-top: 30px;
+            overflow-x: auto;
+        }
+
+        .timeline {
+            position: relative;
+            min-height: 400px;
+            padding-top: 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .timeline-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            display: flex;
+            background-color: #f3f4f6;
+            border-bottom: 1px solid var(--border-color);
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .timeline-hour {
+            flex: 1;
+            text-align: center;
+            padding: 10px 0;
+            font-weight: 500;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .timeline-hour:last-child {
+            border-right: none;
+        }
+
+        .priority-row {
+            min-height: 70px;
+            border-bottom: 1px solid #e5e7eb;
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding-left: 40px;
+        }
+
+        .priority-label {
+            position: absolute;
+            left: 0;
+            width: 40px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            background-color: #f3f4f6;
+            border-right: 1px solid #e5e7eb;
+        }
+
+        .task-item {
+            position: absolute;
+            height: 50px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            cursor: grab;
+            transition: transform 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 14px;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-item.priority-1 { background-color: #ef4444; }
+        .task-item.priority-2 { background-color: #f97316; }
+        .task-item.priority-3 { background-color: #eab308; }
+        .task-item.priority-4 { background-color: #22c55e; }
+        .task-item.priority-5 { background-color: #3b82f6; }
+        .task-item.priority-6 { background-color: #6366f1; }
+        .task-item.priority-7 { background-color: #a855f7; }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .task-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+            color: white;
+        }
+
+        .task-actions button:hover {
+            opacity: 1;
+        }
+
+        .summary {
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .error {
+            color: var(--danger-color);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Icons */
+        .icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Dragging style */
+        .task-item.dragging {
+            opacity: 0.7;
+            z-index: 1000;
+        }
+
+        .priority-selector {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: 10px;
+        }
+
+        .priority-selector input {
+            width: 50px;
+        }
+
+        /* Animation for adding/removing tasks */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .task-item {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(5px); }
+            50% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            Task Time Planner
+        </h1>
+
+        <div class="section">
+            <h2>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Time Range
+            </h2>
+            <div class="time-range">
+                <div class="time-input">
+                    <label>
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 10 20 15 15 20"></polyline>
+                            <path d="M4 4v7a4 4 0 0 0 4 4h12"></path>
+                        </svg>
+                        Start Time
+                    </label>
+                    <input type="text" id="startTime" placeholder="e.g. 0900 or 9:00am" value="0900">
+                    <div id="startTimeError" class="error"></div>
+                </div>
+                <div class="time-input">
+                    <label>
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        End Time
+                    </label>
+                    <input type="text" id="endTime" placeholder="e.g. 1700 or 5:00pm" value="1700">
+                    <div id="endTimeError" class="error"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add New Task
+            </h2>
+            <div class="add-task-form">
+                <div class="input-group task-name-input">
+                    <label>
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <polyline points="10 9 9 9 8 9"></polyline>
+                        </svg>
+                        Task Name
+                    </label>
+                    <input type="text" id="taskName" placeholder="Enter task description">
+                    <div id="taskNameError" class="error"></div>
+                </div>
+                <div class="input-group duration-input">
+                    <label>
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        Duration (mins)
+                    </label>
+                    <input type="text" id="taskDuration" placeholder="Minutes" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <div id="durationError" class="error"></div>
+                </div>
+                <div class="input-group priority-input">
+                    <label>
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                            <line x1="4" y1="22" x2="4" y2="15"></line>
+                        </svg>
+                        Priority (1-7)
+                    </label>
+                    <input type="text" id="taskPriority" placeholder="1-7" maxlength="1" oninput="this.value = this.value.replace(/[^1-7]/g, '')">
+                    <div id="priorityError" class="error"></div>
+                </div>
+            </div>
+            <button id="addTaskBtn" class="btn btn-primary">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add Task
+            </button>
+        </div>
+
+        <div class="action-buttons">
+            <button id="generateTimelineBtn" class="btn btn-primary">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="12" x2="2" y2="12"></line>
+                    <polyline points="5.45 5.11 2 12 5.45 18.89"></polyline>
+                    <polyline points="18.55 5.11 22 12 18.55 18.89"></polyline>
+                </svg>
+                Generate Timeline
+            </button>
+            <button id="clearAllBtn" class="btn btn-danger">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+                Clear All
+            </button>
+        </div>
+
+        <div class="summary" id="taskSummary">
+            Total Tasks: 0
+        </div>
+
+        <h2>
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            Timeline
+        </h2>
+        <div class="timeline-container">
+            <div class="timeline" id="timeline">
+                <div class="timeline-header" id="timelineHeader">
+                    <!-- Time intervals will be added here dynamically -->
+                </div>
+                <!-- Priority rows will be added here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Task manager state
+        const state = {
+            tasks: [],
+            startTime: null,
+            endTime: null,
+            timeFormat: '24h',
+            draggedTask: null,
+            dragStartX: 0,
+            dragStartY: 0,
+            originalPosition: { left: 0, top: 0 }
+        };
+
+        // DOM elements
+        const startTimeInput = document.getElementById('startTime');
+        const endTimeInput = document.getElementById('endTime');
+        const taskNameInput = document.getElementById('taskName');
+        const taskDurationInput = document.getElementById('taskDuration');
+        const taskPriorityInput = document.getElementById('taskPriority');
+        const addTaskBtn = document.getElementById('addTaskBtn');
+        const generateTimelineBtn = document.getElementById('generateTimelineBtn');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const timeline = document.getElementById('timeline');
+        const timelineHeader = document.getElementById('timelineHeader');
+        const taskSummary = document.getElementById('taskSummary');
+
+        // Helper functions
+        function parseTime(timeStr) {
+            timeStr = timeStr.trim().toLowerCase();
+            
+            // Handle 24-hour format (e.g., "1400", "14:00")
+            const militaryTimePattern = /^(\d{1,2})[:.]?(\d{2})$/;
+            if (militaryTimePattern.test(timeStr)) {
+                const [_, hours, minutes] = timeStr.match(militaryTimePattern);
+                return {
+                    hours: parseInt(hours, 10),
+                    minutes: parseInt(minutes, 10)
+                };
+            }
+            
+            // Handle 12-hour format with am/pm (e.g., "2:00pm", "2pm")
+            const twelveHourPattern = /^(\d{1,2})[:.]?(\d{2})?(?:\s*)?(am|pm)$/;
+            if (twelveHourPattern.test(timeStr)) {
+                const [_, hours, minutesStr, period] = timeStr.match(twelveHourPattern);
+                let hrs = parseInt(hours, 10);
+                
+                // Adjust for 12-hour format
+                if (period === 'pm' && hrs < 12) {
+                    hrs += 12;
+                } else if (period === 'am' && hrs === 12) {
+                    hrs = 0;
+                }
+                
+                return {
+                    hours: hrs,
+                    minutes: minutesStr ? parseInt(minutesStr, 10) : 0
+                };
+            }
+            
+            throw new Error("Invalid time format");
+        }
+
+        function formatTime(hours, minutes, format = '24h') {
+            if (format === '24h') {
+                return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+            } else {
+                const period = hours >= 12 ? 'PM' : 'AM';
+                const displayHours = hours % 12 || 12;
+                return `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+            }
+        }
+
+        function calculateMinutesSinceMidnight(timeObj) {
+            return timeObj.hours * 60 + timeObj.minutes;
+        }
+
+        function calculatePositionFromTime(timeObj) {
+            const startMinutes = calculateMinutesSinceMidnight(state.startTime);
+            const endMinutes = calculateMinutesSinceMidnight(state.endTime);
+            const currentMinutes = calculateMinutesSinceMidnight(timeObj);
+            
+            const totalDuration = endMinutes - startMinutes;
+            const timelineWidth = timeline.clientWidth - 40; // 40px for priority labels
+            
+            // Calculate position as percentage of timeline width
+            const position = ((currentMinutes - startMinutes) / totalDuration) * timelineWidth;
+            return Math.max(0, Math.min(position, timelineWidth)) + 40; // Add 40px offset for priority labels
+        }
+
+        function calculateWidthFromDuration(durationMinutes) {
+            const startMinutes = calculateMinutesSinceMidnight(state.startTime);
+            const endMinutes = calculateMinutesSinceMidnight(state.endTime);
+            const totalDuration = endMinutes - startMinutes;
+            
+            const timelineWidth = timeline.clientWidth - 40; // 40px for priority labels
+            
+            // Calculate width as percentage of timeline width
+            return (durationMinutes / totalDuration) * timelineWidth;
+        }
+
+        function getTimeFromPosition(position) {
+            const startMinutes = calculateMinutesSinceMidnight(state.startTime);
+            const endMinutes = calculateMinutesSinceMidnight(state.endTime);
+            const totalDuration = endMinutes - startMinutes;
+            
+            const timelineWidth = timeline.clientWidth - 40; // 40px for priority labels
+            
+            // Adjust position to account for the 40px offset
+            const adjustedPosition = position - 40;
+            
+            // Calculate minutes from position
+            const minutes = startMinutes + (adjustedPosition / timelineWidth) * totalDuration;
+            
+            // Convert minutes to hours and minutes
+            const hours = Math.floor(minutes / 60);
+            const mins = Math.round(minutes % 60);
+            
+            return { hours, minutes: mins };
+        }
+
+        function getPriorityColor(priority) {
+            // Normalize priority to cycle through the color spectrum (1-7)
+            const normalizedPriority = ((priority - 1) % 7) + 1;
+            return `priority-${normalizedPriority}`;
+        }
+
+        function renderTimeline() {
+            // Clear existing timeline header
+            timelineHeader.innerHTML = '';
+            
+            // Create time intervals for the header
+            const startMinutes = calculateMinutesSinceMidnight(state.startTime);
+            const endMinutes = calculateMinutesSinceMidnight(state.endTime);
+            const totalMinutes = endMinutes - startMinutes;
+            
+            // Create hour markers
+            const startHour = state.startTime.hours;
+            const endHour = state.endTime.hours + (state.endTime.minutes > 0 ? 1 : 0);
+            
+            for (let hour = startHour; hour <= endHour; hour++) {
+                const hourTime = { hours: hour, minutes: 0 };
+                
+                // Skip hours outside the time range
+                if (calculateMinutesSinceMidnight(hourTime) < startMinutes || 
+                    calculateMinutesSinceMidnight(hourTime) > endMinutes) {
+                    continue;
+                }
+                
+                const marker = document.createElement('div');
+                marker.className = 'timeline-hour';
+                marker.textContent = formatTime(hour % 24, 0, state.timeFormat);
+                
+                // Calculate position
+                const position = calculatePositionFromTime(hourTime);
+                
+                // Adjust width to next hour or end
+                let nextHour = { hours: hour + 1, minutes: 0 };
+                let nextPosition = calculatePositionFromTime(nextHour);
+                
+                // For the last marker, make it extend to the end
+                if (hour === endHour || nextPosition > timeline.clientWidth) {
+                    nextPosition = timeline.clientWidth;
+                }
+                
+                marker.style.position = 'absolute';
+                marker.style.left = `${position}px`;
+                marker.style.width = `${nextPosition - position}px`;
+                
+                timelineHeader.appendChild(marker);
+            }
+            
+            // Clear existing priority rows
+            const existingRows = timeline.querySelectorAll('.priority-row');
+            existingRows.forEach(row => row.remove());
+            
+            // Find all used priorities
+            const usedPriorities = [...new Set(state.tasks.map(task => task.priority))].sort();
+            
+            // Create rows for each priority
+            usedPriorities.forEach(priority => {
+                const row = document.createElement('div');
+                row.className = 'priority-row';
+                row.dataset.priority = priority;
+                
+                const label = document.createElement('div');
+                label.className = 'priority-label';
+                label.textContent = priority;
+                row.appendChild(label);
+                
+                timeline.appendChild(row);
+            });
+            
+            // Render tasks
+            renderTasks();
+        }
+
+        function renderTasks() {
+            // Clear existing tasks
+            const existingTasks = timeline.querySelectorAll('.task-item');
+            existingTasks.forEach(task => task.remove());
+            
+            // Update task summary count
+            taskSummary.textContent = `Total Tasks: ${state.tasks.length}`;
+            
+            // Sort tasks by priority and start time
+            const sortedTasks = [...state.tasks].sort((a, b) => {
+                if (a.priority !== b.priority) {
+                    return a.priority - b.priority;
+                }
+                return calculateMinutesSinceMidnight(a.startTime) - calculateMinutesSinceMidnight(b.startTime);
+            });
+            
+            // Render each task
+            sortedTasks.forEach(task => {
+                const taskEl = createTaskElement(task);
+                
+                // Find priority row
+                const row = timeline.querySelector(`.priority-row[data-priority="${task.priority}"]`);
+                if (row) {
+                    row.appendChild(taskEl);
+                }
+            });
+        }
+
+        function createTaskElement(task) {
+            const taskEl = document.createElement('div');
+            taskEl.className = `task-item ${getPriorityColor(task.priority)}`;
+            taskEl.dataset.id = task.id;
+            
+            // Calculate position and width
+            const left = calculatePositionFromTime(task.startTime);
+            const width = calculateWidthFromDuration(task.duration);
+            
+            taskEl.style.left = `${left}px`;
+            taskEl.style.width = `${width}px`;
+            
+            // Task content
+            taskEl.innerHTML = `
+                <span class="task-name">${task.name}</span>
+                <div class="task-actions">
+                    <div class="priority-selector">
+                        <input type="text" class="priority-input" value="${task.priority}" 
+                            maxlength="1" oninput="this.value = this.value.replace(/[^1-7]/g, '')">
+                    </div>
+                    <button class="delete-btn">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            
+            // Delete button event
+            taskEl.querySelector('.delete-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeTask(task.id);
+            });
+            
+            // Priority change event
+            const priorityInput = taskEl.querySelector('.priority-input');
+            priorityInput.addEventListener('change', (e) => {
+                e.stopPropagation();
+                const newPriority = parseInt(e.target.value);
+                if (newPriority >= 1 && newPriority <= 7) {
+                    updateTaskPriority(task.id, newPriority);
+                } else
+// This completes the existing JavaScript in your code
+
+// Helper functions section of your code contains parseTime, formatTime, etc.
+// Here we'll add the missing task manipulation functions:
+
+// Generate unique ID for tasks
+function generateId() {
+    return '_' + Math.random().toString(36).substr(2, 9);
+}
+
+// Validate input fields
+function validateInputs() {
+    let isValid = true;
+    
+    // Clear previous errors
+    document.getElementById('startTimeError').textContent = '';
+    document.getElementById('endTimeError').textContent = '';
+    document.getElementById('taskNameError').textContent = '';
+    document.getElementById('durationError').textContent = '';
+    document.getElementById('priorityError').textContent = '';
+    
+    // Validate times
+    try {
+        state.startTime = parseTime(startTimeInput.value);
+    } catch (e) {
+        document.getElementById('startTimeError').textContent = 'Invalid time format';
+        isValid = false;
+    }
+    
+    try {
+        state.endTime = parseTime(endTimeInput.value);
+    } catch (e) {
+        document.getElementById('endTimeError').textContent = 'Invalid time format';
+        isValid = false;
+    }
+    
+    // Validate start time is before end time
+    if (isValid && state.startTime && state.endTime) {
+        const startMinutes = calculateMinutesSinceMidnight(state.startTime);
+        const endMinutes = calculateMinutesSinceMidnight(state.endTime);
+        
+        if (startMinutes >= endMinutes) {
+            document.getElementById('endTimeError').textContent = 'End time must be after start time';
+            isValid = false;
+        }
+    }
+    
+    // Validate task name
+    if (!taskNameInput.value.trim()) {
+        document.getElementById('taskNameError').textContent = 'Task name is required';
+        isValid = false;
+    }
+    
+    // Validate duration
+    const duration = parseInt(taskDurationInput.value);
+    if (!duration || isNaN(duration) || duration <= 0) {
+        document.getElementById('durationError').textContent = 'Valid duration required';
+        isValid = false;
+    }
+    
+    // Validate priority
+    const priority = parseInt(taskPriorityInput.value);
+    if (!priority || isNaN(priority) || priority < 1 || priority > 7) {
+        document.getElementById('priorityError').textContent = 'Priority must be 1-7';
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
+// Add a new task
+function addTask() {
+    if (!validateInputs()) {
+        return;
+    }
+    
+    const taskName = taskNameInput.value.trim();
+    const duration = parseInt(taskDurationInput.value);
+    const priority = parseInt(taskPriorityInput.value);
+    
+    // Calculate default start time (now or at the end of the last task)
+    let startTime;
+    if (state.tasks.length === 0) {
+        startTime = { ...state.startTime }; // Default to timeline start
+    } else {
+        // Find the latest end time of tasks with same priority
+        const samePriorityTasks = state.tasks.filter(t => t.priority === priority);
+        if (samePriorityTasks.length > 0) {
+            const latestTask = samePriorityTasks.reduce((latest, task) => {
+                const taskEndMinutes = calculateMinutesSinceMidnight(task.startTime) + task.duration;
+                const latestEndMinutes = calculateMinutesSinceMidnight(latest.startTime) + latest.duration;
+                return taskEndMinutes > latestEndMinutes ? task : latest;
+            }, samePriorityTasks[0]);
+            
+            const latestEndMinutes = calculateMinutesSinceMidnight(latestTask.startTime) + latestTask.duration;
+            startTime = {
+                hours: Math.floor(latestEndMinutes / 60),
+                minutes: latestEndMinutes % 60
+            };
+        } else {
+            startTime = { ...state.startTime };
+        }
+    }
+    
+    // Ensure task fits within timeline
+    const endMinutes = calculateMinutesSinceMidnight(startTime) + duration;
+    const timelineEndMinutes = calculateMinutesSinceMidnight(state.endTime);
+    
+    if (endMinutes > timelineEndMinutes) {
+        document.getElementById('durationError').textContent = 'Task exceeds timeline end time';
+        return;
+    }
+    
+    // Create task object
+    const task = {
+        id: generateId(),
+        name: taskName,
+        duration: duration,
+        priority: priority,
+        startTime: startTime
+    };
+    
+    // Add to state and render
+    state.tasks.push(task);
+    renderTimeline();
+    
+    // Reset form fields
+    taskNameInput.value = '';
+    taskDurationInput.value = '';
+    taskPriorityInput.value = '';
+}
+
+// Remove a task from the list
+function removeTask(taskId) {
+    state.tasks = state.tasks.filter(task => task.id !== taskId);
+    renderTimeline();
+}
+
+// Update task priority
+function updateTaskPriority(taskId, newPriority) {
+    const taskIndex = state.tasks.findIndex(task => task.id === taskId);
+    
+    if (taskIndex !== -1) {
+        state.tasks[taskIndex].priority = newPriority;
+        renderTimeline();
+    }
+}
+
+// Initialize the timeline based on start/end times
+function initializeTimeline() {
+    if (!validateTimeRange()) {
+        return;
+    }
+    
+    renderTimeline();
+}
+
+// Validate just the time range
+function validateTimeRange() {
+    // Clear previous errors
+    document.getElementById('startTimeError').textContent = '';
+    document.getElementById('endTimeError').textContent = '';
+    
+    try {
+        state.startTime = parseTime(startTimeInput.value);
+    } catch (e) {
+        document.getElementById('startTimeError').textContent = 'Invalid time format';
+        return false;
+    }
+    
+    try {
+        state.endTime = parseTime(endTimeInput.value);
+    } catch (e) {
+        document.getElementById('endTimeError').textContent = 'Invalid time format';
+        return false;
+    }
+    
+    // Validate start time is before end time
+    const startMinutes = calculateMinutesSinceMidnight(state.startTime);
+    const endMinutes = calculateMinutesSinceMidnight(state.endTime);
+    
+    if (startMinutes >= endMinutes) {
+        document.getElementById('endTimeError').textContent = 'End time must be after start time';
+        return false;
+    }
+    
+    return true;
+}
+
+// Implement task dragging to change start time
+function setupTaskDragging(taskEl, task) {
+    taskEl.addEventListener('mousedown', startDragging);
+    
+    function startDragging(e) {
+        e.preventDefault();
+        
+        // Store original position
+        state.draggedTask = task.id;
+        state.dragStartX = e.clientX;
+        state.originalPosition = {
+            left: parseFloat(taskEl.style.left),
+            top: parseFloat(taskEl.style.top)
+        };
+        
+        // Add dragging class
+        taskEl.classList.add('dragging');
+        
+        // Add temporary event listeners
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', stopDragging);
+    }
+    
+    function onMouseMove(e) {
+        if (!state.draggedTask) return;
+        
+        const dx = e.clientX - state.dragStartX;
+        const newLeft = state.originalPosition.left + dx;
+        
+        // Constrain to timeline bounds
+        const minLeft = 40; // Account for priority label
+        const maxLeft = timeline.clientWidth - parseFloat(taskEl.style.width);
+        
+        const constrainedLeft = Math.max(minLeft, Math.min(newLeft, maxLeft));
+        taskEl.style.left = `${constrainedLeft}px`;
+    }
+    
+    function stopDragging(e) {
+        if (!state.draggedTask) return;
+        
+        // Calculate new time from position
+        const newPosition = parseFloat(taskEl.style.left);
+        const newTime = getTimeFromPosition(newPosition);
+        
+        // Update task start time
+        const taskIndex = state.tasks.findIndex(t => t.id === state.draggedTask);
+        if (taskIndex !== -1) {
+            state.tasks[taskIndex].startTime = newTime;
+        }
+        
+        // Clean up
+        taskEl.classList.remove('dragging');
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', stopDragging);
+        state.draggedTask = null;
+        
+        // Re-render to clean up positioning
+        renderTimeline();
+    }
+}
+
+// Function to clear all tasks
+function clearAllTasks() {
+    if (confirm('Are you sure you want to remove all tasks?')) {
+        state.tasks = [];
+        renderTimeline();
+    }
+}
+
+// Enhance the createTaskElement function to add drag functionality
+function createTaskElement(task) {
+    const taskEl = document.createElement('div');
+    taskEl.className = `task-item ${getPriorityColor(task.priority)}`;
+    taskEl.dataset.id = task.id;
+    
+    // Calculate position and width
+    const left = calculatePositionFromTime(task.startTime);
+    const width = calculateWidthFromDuration(task.duration);
+    
+    taskEl.style.left = `${left}px`;
+    taskEl.style.width = `${width}px`;
+    
+    // Task content with time display
+    const startTimeStr = formatTime(task.startTime.hours, task.startTime.minutes, state.timeFormat);
+    const endMinutes = calculateMinutesSinceMidnight(task.startTime) + task.duration;
+    const endHours = Math.floor(endMinutes / 60);
+    const endMins = endMinutes % 60;
+    const endTimeStr = formatTime(endHours, endMins, state.timeFormat);
+    
+    taskEl.innerHTML = `
+        <span class="task-name">${task.name} (${startTimeStr}-${endTimeStr})</span>
+        <div class="task-actions">
+            <div class="priority-selector">
+                <input type="text" class="priority-input" value="${task.priority}" 
+                    maxlength="1" oninput="this.value = this.value.replace(/[^1-7]/g, '')">
+            </div>
+            <button class="delete-btn">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+            </button>
+        </div>
+    `;
+    
+    // Delete button event
+    taskEl.querySelector('.delete-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeTask(task.id);
+    });
+    
+    // Priority change event
+    const priorityInput = taskEl.querySelector('.priority-input');
+    priorityInput.addEventListener('change', (e) => {
+        e.stopPropagation();
+        const newPriority = parseInt(e.target.value);
+        if (newPriority >= 1 && newPriority <= 7) {
+            updateTaskPriority(task.id, newPriority);
+        } else {
+            e.target.value = task.priority;
+        }
+    });
+    
+    // Setup drag functionality
+    setupTaskDragging(taskEl, task);
+    
+    return taskEl;
+}
+
+// Event listeners
+addTaskBtn.addEventListener('click', addTask);
+generateTimelineBtn.addEventListener('click', initializeTimeline);
+clearAllBtn.addEventListener('click', clearAllTasks);
+
+// Initialize timeline on page load
+document.addEventListener('DOMContentLoaded', () => {
+    if (validateTimeRange()) {
+        renderTimeline();
+    }
+});
+
+// Add keyboard event listener for form submission
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        const activeElement = document.activeElement;
+        if (activeElement === taskNameInput || 
+            activeElement === taskDurationInput || 
+            activeElement === taskPriorityInput) {
+            addTask();
+        }
+    }
+});
